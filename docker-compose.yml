@@ -1,0 +1,11 @@
+services:
+  sessionsbridge:
+    build: .
+    container_name: sessionsbridge
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
