@@ -23,8 +23,8 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID_CALENDAR"),
+		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET_CALENDAR"),
 		RedirectURL:        os.Getenv("REDIRECT_URL"),
 		Port:               os.Getenv("PORT"),
 		AllowedOrigins:     os.Getenv("ALLOWED_ORIGINS"),
@@ -32,10 +32,10 @@ func Load() (*Config, error) {
 	}
 
 	if cfg.GoogleClientID == "" {
-		return nil, fmt.Errorf("GOOGLE_CLIENT_ID es requerido")
+		return nil, fmt.Errorf("GOOGLE_CLIENT_ID_CALENDAR es requerido")
 	}
 	if cfg.GoogleClientSecret == "" {
-		return nil, fmt.Errorf("GOOGLE_CLIENT_SECRET es requerido")
+		return nil, fmt.Errorf("GOOGLE_CLIENT_SECRET_CALENDAR es requerido")
 	}
 	if cfg.AdminSecret == "" {
 		return nil, fmt.Errorf("ADMIN_SECRET es requerido: define un secreto para proteger los endpoints de autenticación")
