@@ -24,6 +24,6 @@ COPY --from=builder /lm-landing-back  .
 # Crear directorio para el token
 RUN mkdir -p /app/data
 
-EXPOSE 8080
+EXPOSE 8092
 
 CMD ["./lm-landing-back "]
