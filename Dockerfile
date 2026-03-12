@@ -19,11 +19,11 @@ RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /app
 
 # Copiar solo el binario compilado
-COPY --from=builder /lm-landing-back  .
+COPY --from=builder /lm-landing-back .
 
 # Crear directorio para el token
 RUN mkdir -p /app/data
 
 EXPOSE 8092
 
-CMD ["./lm-landing-back "]
+CMD ["./lm-landing-back"]
