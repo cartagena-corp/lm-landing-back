@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"sessionsbridge/models"
@@ -47,6 +48,12 @@ func (s *Service) CreateMeetSession(ctx context.Context, client *http.Client, re
 	var attendees []*calendar.EventAttendee
 	for _, email := range req.Attendees {
 		attendees = append(attendees, &calendar.EventAttendee{Email: email})
+	}
+
+	// Agregar el correo del organizador
+	organizerEmail := os.Getenv("ORGANIZER_EMAIL")
+	if organizerEmail != "" {
+		attendees = append(attendees, &calendar.EventAttendee{Email: organizerEmail})
 	}
 
 	// Crear el evento con conferencia de Meet
