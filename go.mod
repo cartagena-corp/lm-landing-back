@@ -1,4 +1,4 @@
-module sessionsbridge
+module lm-landing-back
 
 go 1.25.0
 

@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"sessionsbridge/auth"
-	calendarSvc "sessionsbridge/calendar"
-	"sessionsbridge/models"
+	"lm-landing-back/auth"
+	calendarSvc "lm-landing-back/calendar"
+	"lm-landing-back/models"
 )
 
 // SessionHandler maneja las solicitudes HTTP para agendar sesiones.

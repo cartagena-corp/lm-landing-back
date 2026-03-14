@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"sessionsbridge/auth"
-	calendarSvc "sessionsbridge/calendar"
-	"sessionsbridge/config"
-	"sessionsbridge/handlers"
+	"lm-landing-back/auth"
+	calendarSvc "lm-landing-back/calendar"
+	"lm-landing-back/config"
+	"lm-landing-back/handlers"
 
 	"github.com/rs/cors"
 )

@@ -1,9 +1,9 @@
 services:
-  sessionsbridge:
+  lm-landing-back:
     build: .
-    container_name: sessionsbridge
+    container_name: lm-landing-back
     ports:
-      - "${PORT:-8080}:${PORT:-8080}"
+      - "${PORT:-8092}:${PORT:-8092}"
     env_file:
       - .env
     volumes:

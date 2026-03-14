@@ -1,6 +1,5 @@
 .env
 token.json
-sessionsbridge.tar
 .git
 .gitignore
 *.md

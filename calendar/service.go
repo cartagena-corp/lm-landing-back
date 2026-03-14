@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
-	"sessionsbridge/models"
+	"lm-landing-back/models"
 
 	"github.com/google/uuid"
 	"google.golang.org/api/calendar/v3"
@@ -56,12 +57,11 @@ func (s *Service) CreateMeetSession(ctx context.Context, client *http.Client, re
 		attendees = append(attendees, &calendar.EventAttendee{Email: organizerEmail})
 	}
 
-	// Crear el evento con conferencia de Meet
+	// Crear el evento con conferencia de Meet (sin descripción aún)
 	requestID := uuid.New().String()
 
 	event := &calendar.Event{
-		Summary:     req.Title,
-		Description: req.Description,
+		Summary: req.Title,
 		Start: &calendar.EventDateTime{
 			DateTime: startTime.Format(time.RFC3339),
 		},
@@ -95,6 +95,17 @@ func (s *Service) CreateMeetSession(ctx context.Context, client *http.Client, re
 	}
 	if meetLink == "" && createdEvent.HangoutLink != "" {
 		meetLink = createdEvent.HangoutLink
+	}
+
+	// Construir el HTML final con los links reales y actualizar la descripción del evento
+	htmlDescription := buildEmailHTML(req, startTime, endTime, meetLink, createdEvent.HtmlLink)
+	patch := &calendar.Event{Description: htmlDescription}
+	_, err = srv.Events.Patch("primary", createdEvent.Id, patch).
+		SendUpdates("none").
+		Do()
+	if err != nil {
+		// No es un error fatal: el evento ya existe, solo falla la descripción HTML
+		fmt.Printf("advertencia: no se pudo actualizar la descripción HTML del evento: %v\n", err)
 	}
 
 	return &models.SessionResponse{
@@ -234,4 +245,50 @@ func overlapsAny(start, end time.Time, busyPeriods []models.TimeSlot) bool {
 		}
 	}
 	return false
+}
+
+// buildEmailHTML genera una descripción elegante y compatible con la sanitización de Google Calendar.
+func buildEmailHTML(req models.SessionRequest, startTime, endTime time.Time, meetLink, calendarLink string) string {
+	// Nombre del primer asistente (destinatario principal)
+	nombreDestinatario := "Cliente"
+	if len(req.Attendees) > 0 {
+		nombreDestinatario = req.Attendees[0]
+	}
+
+	// Datos del organizador desde variables de entorno
+	nombreOrganizador := os.Getenv("ORGANIZER_NAME")
+	if nombreOrganizador == "" {
+		nombreOrganizador = "Equipo LA MURALLA"
+	}
+	emailSoporte := os.Getenv("ORGANIZER_EMAIL")
+	if emailSoporte == "" {
+		emailSoporte = "soporte@cartagenacorporation.com"
+	}
+
+	// Formatear fecha y horas
+	fecha := startTime.Format("02 Jan 2006")
+	horaInicio := startTime.Format("15:04")
+	horaFin := endTime.Format("15:04")
+	zonaHoraria := startTime.Location().String()
+	duracionMin := int(endTime.Sub(startTime).Minutes())
+
+	// Nota adicional: usar req.Description si existe
+	notaAdicional := req.Description
+	if notaAdicional == "" {
+		notaAdicional = "Por favor, únete a la sesión unos minutos antes para verificar audio y video."
+	}
+
+	html := EmailTemplate
+
+	html = strings.ReplaceAll(html, "{{NOMBRE_DESTINATARIO}}", nombreDestinatario)
+	html = strings.ReplaceAll(html, "{{TEMA_REUNION}}", req.Title)
+	html = strings.ReplaceAll(html, "{{FECHA_REUNION}}", fecha)
+	html = strings.ReplaceAll(html, "{{HORA_INICIO}}", horaInicio)
+	html = strings.ReplaceAll(html, "{{HORA_FIN}}", horaFin)
+	html = strings.ReplaceAll(html, "{{ZONA_HORARIA}}", zonaHoraria)
+	html = strings.ReplaceAll(html, "{{DURACION}}", fmt.Sprintf("%d", duracionMin))
+	html = strings.ReplaceAll(html, "{{LINK_GOOGLE_MEET}}", meetLink)
+	html = strings.ReplaceAll(html, "{{NOTA_ADICIONAL}}", notaAdicional)
+
+	return html
 }
